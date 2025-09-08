@@ -80,3 +80,23 @@ class EnfermeiroDAO():
                 print('Erro: ', e)
                 self.db.desconectar()
                 return False
+            
+    def remover_enfermeiro_email(self, email):
+        if email:
+            try:
+                consulta = self.db.consultar('select * from enfermeiros where email_enf = %s', (email, ))
+                if consulta:
+                    result = self.db.manipular('delete from enfermeiros where email_enf = %s', (email, ))
+
+                    if result:
+                        return True
+                    else:
+                        return False
+                else:
+                    return False
+            except Exception as e:
+                print('Erro: ', e)
+                self.db.desconectar()
+                return False
+        else:
+            return False

@@ -6,6 +6,8 @@ from control.internacaoDAO import InternacaoDAO
 from control.consultaDAO import ConsultaDAO
 from control.exameDAO import ExameDAO
 from db.connection import Connection
+import customtkinter as ctk
+import tkinter as tk
 import dotenv
 import os
 
@@ -26,6 +28,9 @@ back_paciente = PacienteDAO(db)
 back_internacao = InternacaoDAO(db)
 back_consulta = ConsultaDAO(db)
 back_exame = ExameDAO(db)
+
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("blue")
 
 
 def visualizar_exames():
@@ -296,10 +301,28 @@ def adicionar_enfermeiros():
     sexo = input('Digite o sexo do enfermeiro: ')
     telefone = input('Digite o telefone do enfermeiro: ')
     email = input('Digite o email do enfermeiro: ')
+    senha = input('Digite sua senha para logar no sistema: ')
+    perfil = 'enfermeiro'
     result = back_enfermeiro.adicionar_enfermeiros(nome, data, sexo, telefone, email)
+    result2 = back_usuario.registrar(nome, email, senha, perfil)
 
-    if result:
+    if result and result2:
         print('\nEnfermeiro adicionado com sucesso!')
+
+    elif not result and result2:
+        result = back_usuario.remover_usuario(email)
+        if result:
+            print('\nFalha ao registrar usuario')
+        else:
+            print('Não foi possivel remover enfermeiro')
+
+    elif result and not result2:
+        result = back_enfermeiro.remover_enfermeiro_email(email)
+
+        if result:
+            print('\nFalha ao adicionar enfermeiro')
+        else:
+            print('Não foi possivel remover o enfermeiro')
     else:
         print('\nFalha ao adicionar enfermeiro')
 
@@ -342,10 +365,28 @@ def adicionar_medicos():
     sexo = input('Digite o sexo do medico: ')
     telefone = input('Digite o telefone do medico: ')
     email = input('Digite o email do medico: ')
+    senha = input('Digite sua senha para logar no sistema: ')
+    perfil = 'medico'
     result = back_medico.adicionar_medicos(nome, crm, data, sexo, telefone, email)
+    result2 = back_usuario.registrar(nome, email, senha, perfil)
 
-    if result:
+    if result and result2:
         print('\nMedico adicionado com sucesso!')
+
+    elif not result and result2:
+        result = back_usuario.remover_usuario(email)
+        if result:
+            print('\nFalha ao registrar usuario')
+        else:
+            print('Não foi possivel remover usuario')
+
+    elif result and not result2:
+        result = back_medico.remover_medico_email(email)
+
+        if result:
+            print('\nFalha ao registrar medico')
+        else:
+            print('Não foi possivel remover o medico')
     else:
         print('\nFalha ao adicionar medico')
 
@@ -535,10 +576,43 @@ def registrar():
     email = input('Digite seu email: ')
     senha = input('Digite sua senha: ')
     tipo = input('Digite o perfil de usuario(medico, enfermeiro, admin): ')
-    result = back_usuario.registrar(nome, email, senha, tipo)
+    if tipo == 'medico':
+        crm = input('Digite o CRM do medico: ')
+        data = input('Digite a data de nascimento do medico: ')
+        sexo = input('Digite o sexo do medico: ')
+        telefone = input('Digite o telefone do medico: ')
+        result = back_usuario.registrar(nome, email, senha, tipo)
+        result2 = back_medico.adicionar_medicos(nome, crm, data, sexo, telefone, email)
+    elif tipo == 'enfermeiro':
+        data = input('Digite a data de nascimento do enfermeiro: ')
+        sexo = input('Digite o sexo do enfermeiro: ')
+        telefone = input('Digite o telefone do enfermeiro: ')
+        result = back_usuario.registrar(nome, email, senha, tipo)
+        result2 = back_enfermeiro.adicionar_enfermeiros(nome, data, sexo, telefone, email)
+    else:
+        result = back_usuario.registrar(nome, email, senha, tipo)
+        result2 = True
+        
 
-    if result:
+    if result and result2:
         print('\nUsuario registrado com sucesso!')
+    elif result and not result2:
+        result = back_usuario.remover_usuario(email)
+        if result:
+            print('\nFalha ao registrar usuario')
+        else:
+            print('Não foi possivel remover usuario')
+
+    elif not result and result2:
+        if tipo == "medico":
+            result = back_medico.remover_medico_email(email)
+        elif tipo == "enfermeiro":
+            result = back_enfermeiro.remover_enfermeiro_email(email)
+
+        if result:
+            print('\nFalha ao registrar usuario')
+        else:
+            print('Não foi possivel remover o medico ou enfermeiro')
     else:
         print('\nFalha ao registrar usuario')
 

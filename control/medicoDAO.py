@@ -80,3 +80,23 @@ class MedicoDAO():
                 print('Erro: ', e)
                 self.db.desconectar()
                 return False
+    
+    def remover_medico_email(self, email):
+        if email:
+            try:
+                consulta = self.db.consultar('select * from medicos where email_med = %s', (email, ))
+                if consulta:
+                    result = self.db.manipular('delete from medicos where email_med = %s', (email, ))
+
+                    if result:
+                        return True
+                    else:
+                        return False
+                else:
+                    return False
+            except Exception as e:
+                print('Erro: ', e)
+                self.db.desconectar()
+                return False
+        else:
+            return False

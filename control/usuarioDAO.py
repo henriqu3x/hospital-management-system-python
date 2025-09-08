@@ -42,7 +42,7 @@ class UsuarioDAO():
                         
                         if consulta_email_med:
                             consulta_id_med = self.db.consultar('select id_usuario from usuarios where email_usu = %s', (email, ))
-                            self.db.manipular('update medicos set usuario_id = %s', (consulta_id_med[0][0], ))
+                            self.db.manipular('update medicos set usuario_id = %s where email_med = %s', (consulta_id_med[0][0], email))
                     elif perfil == 'enfermeiro':
                         consulta_email_enf = self.db.consultar('''
         select email_enf from enfermeiros where email_enf = %s
@@ -50,9 +50,29 @@ class UsuarioDAO():
                         
                         if consulta_email_enf:
                             consulta_id_enf = self.db.consultar('select id_usuario from usuarios where email_usu = %s', (email, ))
-                            self.db.manipular('update enfermeiros set usuario_id = %s', (consulta_id_enf[0][0], ))
+                            self.db.manipular('update enfermeiros set usuario_id = %s where email_enf = %s', (consulta_id_enf[0][0], email))
 
                     return True
+                else:
+                    return False
+            except Exception as e:
+                print('Erro: ', e)
+                self.db.desconectar()
+                return False
+        else:
+            return False
+        
+    def remover_usuario(self, email):
+        if email:
+            try:
+                consulta = self.db.consultar('select * from usuarios where email_usu = %s', (email, ))
+                if consulta:
+                    result = self.db.manipular('delete from usuarios where email_usu = %s', (email, ))
+
+                    if result:
+                        return True
+                    else:
+                        return False
                 else:
                     return False
             except Exception as e:
